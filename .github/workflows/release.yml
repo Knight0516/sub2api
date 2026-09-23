@@ -254,6 +254,9 @@ jobs:
           GITHUB_REPO_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO_NAME: ${{ github.event.repository.name }}
           GITHUB_REPO_OWNER_LOWER: ${{ needs.prepare.outputs.owner_lower }}
+          # .goreleaser.yaml release footer template references DOCKERHUB_USERNAME;
+          # set to 'skip' so the template renders the GHCR-only fallback.
+          DOCKERHUB_USERNAME: skip
       - name: Upload dry-run checksums and metadata
         if: ${{ env.DRY_RUN == 'true' }}
         uses: actions/upload-artifact@v7
