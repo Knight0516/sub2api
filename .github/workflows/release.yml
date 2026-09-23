@@ -23,11 +23,12 @@ concurrency:
 permissions:
   contents: read
 
-# Fork of Knight0516/sub2api: always run in simple mode (tarball + checksums only,
-# no Docker images, no Telegram notification). To restore full upstream behavior,
-# set the repository variable SIMPLE_RELEASE='false'.
+# Fork of Knight0516/sub2api: Docker/Telegram steps were removed from the
+# release job, but SIMPLE_RELEASE must stay 'false' — upstream's "simple"
+# mode means "Docker-only release" (no binary assets, no checksums), which
+# is the opposite of what this fork needs.
 env:
-  SIMPLE_RELEASE: 'true'
+  SIMPLE_RELEASE: 'false'
   DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
 
 jobs:
