@@ -113,16 +113,22 @@ if ($current -ne $Branch) {
     Assert-GitOk "git checkout $Branch"
 }
 
-$dirty = @(git status --porcelain)
-if ($dirty.Count -gt 0) {
-    Warn '工作区存在未提交的改动：'
-    $dirty | ForEach-Object { Write-Host "        $_" -ForegroundColor DarkGray }
-    if (-not (Confirm '这些改动不会被打进 tag，确定继续？')) { Die '已取消。' }
+$changes = @(git status --porcelain)
+$trackedChanges = @($changes | Where-Object { $_ -notmatch '^\?\?' })
+if ($trackedChanges.Count -gt 0) {
+    Warn '工作区有未提交的改动（不会被打进 tag）：'
+    $trackedChanges | ForEach-Object { Write-Host "        $_" -ForegroundColor DarkGray }
+    if (-not (Confirm '确定继续？')) { Die '已取消。' }
+} elseif ($changes.Count -gt 0) {
+    Info "工作区有 $($changes.Count) 项未跟踪文件（不影响 tag，已忽略）。"
 }
 
 # ==================== 3. 拉取上游并合并 ====================
-Info "拉取原仓库 $Upstream ..."
-git fetch $Upstream --tags --prune
+# 只拉需要的分支，不加 --tags：
+# upstream 的 v0.2.8/v0.2.10/v0.2.11/v0.2.14 和 fork 上的同名 tag 指向不同，
+# --tags 会报 "would clobber existing tag" 并让整个 fetch 以非 0 退出。
+Info "拉取原仓库 $Upstream 的 $Branch 分支 ..."
+git fetch $Upstream "+refs/heads/${Branch}:refs/remotes/${Upstream}/${Branch}" --no-tags
 Assert-GitOk "git fetch $Upstream"
 
 Info "合并 $Upstream/$Branch 到本地 $Branch ..."
