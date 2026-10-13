@@ -39,6 +39,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# 让 PowerShell 按 UTF-8 解码 git 等外部命令的输出。
+# 中文 Windows 控制台默认 code page 是 936(GBK)，会把 git 输出的 UTF-8 字节解成乱码，
+# 表现就是脚本里 "合并完成：$(git log ...)" 这类捕获来的中文变成 浼樺寲... 这种乱码。
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
 # ==================== 输出辅助 ====================
 function Info { param([string]$m) Write-Host "[*]  $m" -ForegroundColor Cyan }
 function Ok   { param([string]$m) Write-Host "[OK] $m" -ForegroundColor Green }
