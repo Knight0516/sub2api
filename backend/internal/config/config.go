@@ -107,8 +107,19 @@ type Config struct {
 	ImageStorage            ImageStorageConfig            `mapstructure:"image_storage"`
 	Plugins                 PluginConfig                  `mapstructure:"plugins"`
 
+	// Showcase 代理「醍醐测试」只读作品展示接口（pelican-showcase）。
+	// API Key 仅保存在服务端，通过 SHOWCASE_BASE_URL / SHOWCASE_API_KEY 注入。
+	Showcase ShowcaseConfig `mapstructure:"showcase"`
+
 	// Enforce only API-key spending windows in simple mode.
 	SimpleModeKeyRateLimitEnabled bool `mapstructure:"simple_mode_key_rate_limit_enabled" yaml:"simple_mode_key_rate_limit_enabled"`
+}
+
+// ShowcaseConfig 控制「醍醐测试」作品展示代理。
+// base_url 形如 https://sub.haogeai6.top，api_key 为该站有效的网关 API Key。
+type ShowcaseConfig struct {
+	BaseURL string `mapstructure:"base_url"`
+	APIKey  string `mapstructure:"api_key"`
 }
 
 // SimpleModeConfig controls startup behavior in simple mode.
@@ -2349,6 +2360,11 @@ func setDefaults() {
 
 	// 本地进程插件。插件必须由管理员手动上传，项目默认不携带任何插件能力。
 	viper.SetDefault("plugins.data_dir", "")
+
+	// Showcase（醍醐测试作品展示代理）。默认值内置，可被 config.yaml 或
+	// SHOWCASE_BASE_URL / SHOWCASE_API_KEY 环境变量覆盖。
+	viper.SetDefault("showcase.base_url", "https://sub.haogeai6.top")
+	viper.SetDefault("showcase.api_key", "sk-12fe7e29b2a2514166d7a711c08fe95b4180ca999cebd0e83743c2e989d5dece")
 	viper.SetDefault("plugins.allow_unsigned", false)
 	viper.SetDefault("plugins.trusted_publishers", map[string]string{})
 	viper.SetDefault("plugins.max_upload_bytes", int64(128*1024*1024))

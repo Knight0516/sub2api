@@ -95,6 +95,13 @@ func RegisterUserRoutes(
 			channels.GET("/available", h.AvailableChannel.List)
 		}
 
+		// 醍醐测试：只读作品展示代理（登录可见，上游 API Key 保存在服务端）
+		showcase := authenticated.Group("/showcase")
+		{
+			showcase.GET("", h.Showcase.List)
+			showcase.GET("/items/:id", h.Showcase.GetItem)
+		}
+
 		// 使用记录（聚合统计属重查询，叠加更严格的按用户限流）
 		usage := authenticated.Group("/usage")
 		usage.Use(panelRateLimiter.Heavy())

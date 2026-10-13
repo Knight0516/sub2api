@@ -386,6 +386,16 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/showcase',
+    name: 'Showcase',
+    component: () => import('@/views/user/ShowcaseView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: '醍醐测试',
+    }
+  },
+  {
     path: '/custom/:id',
     name: 'CustomPage',
     component: () => import('@/views/user/CustomPageView.vue'),
