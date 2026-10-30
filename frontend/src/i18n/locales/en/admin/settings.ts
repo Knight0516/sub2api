@@ -703,6 +703,13 @@ export default {
         integrationDoc: 'Payment Integration Docs',
         integrationDocHint: 'Covers endpoint specs, idempotency semantics, and code samples'
       },
+      headerLinks: {
+        title: 'Header links',
+        description: 'Configure up to two links for the home page and signed-in header. Entries with an empty title or URL are hidden. Use a full HTTP(S) URL. Links open in a new tab.',
+        item: 'Link {n}',
+        label: 'Title',
+        url: 'Destination URL',
+      },
       customMenu: {
         title: 'Custom Menu Pages',
         description: 'Add custom iframe pages to the sidebar navigation. Each page can be visible to regular users or administrators.',

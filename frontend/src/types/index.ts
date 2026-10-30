@@ -185,6 +185,11 @@ export interface SendVerifyCodeResponse {
   countdown: number
 }
 
+export interface HeaderLink {
+  title: string
+  url: string
+}
+
 export interface CustomMenuItem {
   id: string
   label: string
@@ -240,6 +245,7 @@ export interface PublicSettings {
   doc_url: string
   home_content: string
   compact_home_enabled: boolean
+  header_links?: HeaderLink[]
   hide_ccs_import_button: boolean
   payment_enabled: boolean
   risk_control_enabled: boolean

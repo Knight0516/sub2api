@@ -167,6 +167,7 @@ type UpdateSettingsRequest struct {
 	TableDefaultPageSize        int                   `json:"table_default_page_size"`
 	TablePageSizeOptions        []int                 `json:"table_page_size_options"`
 	CustomMenuItems             *[]dto.CustomMenuItem `json:"custom_menu_items"`
+	HeaderLinks                 *[]service.HeaderLink `json:"header_links"`
 	CustomEndpoints             *[]dto.CustomEndpoint `json:"custom_endpoints"`
 
 	// 默认配置
@@ -1265,6 +1266,21 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		}
 	}
 
+	headerLinksJSON := previousSettings.HeaderLinks
+	if req.HeaderLinks != nil {
+		items, err := service.NormalizeHeaderLinks(*req.HeaderLinks)
+		if err != nil {
+			response.BadRequest(c, err.Error())
+			return
+		}
+		raw, err := json.Marshal(items)
+		if err != nil {
+			response.BadRequest(c, "Failed to serialize header links")
+			return
+		}
+		headerLinksJSON = string(raw)
+	}
+
 	// 自定义菜单项验证
 	const (
 		maxCustomMenuItems    = 20
@@ -1654,6 +1670,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		TableDefaultPageSize:                   req.TableDefaultPageSize,
 		TablePageSizeOptions:                   req.TablePageSizeOptions,
 		CustomMenuItems:                        customMenuJSON,
+		HeaderLinks:                            headerLinksJSON,
 		CustomEndpoints:                        customEndpointsJSON,
 		DefaultConcurrency:                     req.DefaultConcurrency,
 		DefaultBalance:                         req.DefaultBalance,
@@ -2318,6 +2335,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		TableDefaultPageSize:                                   updatedSettings.TableDefaultPageSize,
 		TablePageSizeOptions:                                   updatedSettings.TablePageSizeOptions,
 		CustomMenuItems:                                        dto.ParseCustomMenuItems(updatedSettings.CustomMenuItems),
+		HeaderLinks:                                            service.ParseHeaderLinks(updatedSettings.HeaderLinks),
 		CustomEndpoints:                                        dto.ParseCustomEndpoints(updatedSettings.CustomEndpoints),
 		DefaultConcurrency:                                     updatedSettings.DefaultConcurrency,
 		DefaultBalance:                                         updatedSettings.DefaultBalance,

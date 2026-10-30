@@ -6713,6 +6713,28 @@
             </div>
           </div>
 
+          <div class="card" data-testid="header-links-settings">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('admin.settings.headerLinks.title') }}</h2>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('admin.settings.headerLinks.description') }}</p>
+            </div>
+            <div class="space-y-4 p-6">
+              <div v-for="(item, index) in form.header_links" :key="index" class="rounded-lg border border-gray-200 p-4 dark:border-dark-600">
+                <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('admin.settings.headerLinks.item', { n: index + 1 }) }}</h3>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <label class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.headerLinks.label') }}
+                    <input v-model="item.title" type="text" maxlength="50" class="input mt-1" :data-testid="'header-link-title-' + index" />
+                  </label>
+                  <label class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.headerLinks.url') }}
+                    <input v-model="item.url" type="url" maxlength="2048" placeholder="https://example.com" class="input mt-1" :data-testid="'header-link-url-' + index" />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Custom Menu Items -->
           <div class="card">
             <div
@@ -9775,6 +9797,7 @@ const form = reactive<SettingsForm>({
   doc_url: "",
   home_content: "",
   compact_home_enabled: false,
+  header_links: [{ title: "", url: "" }, { title: "", url: "" }],
   backend_mode_enabled: false,
   hide_ccs_import_button: false,
   payment_enabled: false,
@@ -11016,6 +11039,10 @@ async function loadSettings() {
         (form as Record<string, unknown>)[key] = value;
       }
     }
+    form.header_links = Array.from({ length: 2 }, (_, index) => ({
+      title: settings.header_links?.[index]?.title ?? "",
+      url: settings.header_links?.[index]?.url ?? "",
+    }));
     // For this optional override, null explicitly selects per-account rates.
     if (settings.openai_oauth_scheduling_rate_multiplier === null) {
       form.openai_oauth_scheduling_rate_multiplier = null;
@@ -11482,6 +11509,7 @@ async function saveSettings() {
       doc_url: form.doc_url,
       home_content: form.home_content,
       compact_home_enabled: form.compact_home_enabled,
+      header_links: form.header_links,
       backend_mode_enabled: form.backend_mode_enabled,
       hide_ccs_import_button: form.hide_ccs_import_button,
       table_default_page_size: form.table_default_page_size,
@@ -11812,6 +11840,10 @@ async function saveSettings() {
         (form as Record<string, unknown>)[key] = value;
       }
     }
+    form.header_links = Array.from({ length: 2 }, (_, index) => ({
+      title: updated.header_links?.[index]?.title ?? "",
+      url: updated.header_links?.[index]?.url ?? "",
+    }));
     if (updated.openai_oauth_scheduling_rate_multiplier === null) {
       form.openai_oauth_scheduling_rate_multiplier = null;
     }

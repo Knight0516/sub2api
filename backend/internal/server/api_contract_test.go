@@ -961,6 +961,7 @@ func TestAPIContracts(t *testing.T) {
 						"rules": []
 					},
 					"custom_menu_items": [],
+					"header_links": [],
 					"custom_endpoints": [],
 					"payment_enabled": false,
 					"payment_min_amount": 0,
@@ -1199,6 +1200,7 @@ func TestAPIContracts(t *testing.T) {
 					"auth_source_default_wechat_platform_quotas": null,
 					"auth_source_default_dingtalk_platform_quotas": null,
 					"custom_menu_items": [],
+					"header_links": [],
 					"custom_endpoints": [],
 					"default_concurrency": 0,
 					"default_balance": 0,

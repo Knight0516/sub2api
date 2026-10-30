@@ -30,6 +30,7 @@
         </div>
         <div class="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-2">
           <LocaleSwitcher />
+          <HeaderLinks />
           <a
             v-if="docUrl"
             :href="docUrl"
@@ -116,7 +117,7 @@
 
     <!-- Header -->
     <header class="relative z-20 px-6 py-4">
-      <nav class="mx-auto flex max-w-6xl items-center justify-between">
+      <nav class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
         <!-- Logo -->
         <div class="flex items-center">
           <div class="h-10 w-10 overflow-hidden rounded-xl shadow-md">
@@ -125,9 +126,10 @@
         </div>
 
         <!-- Nav Actions -->
-        <div class="flex items-center gap-3">
+        <div class="flex max-w-full flex-wrap items-center justify-end gap-2 sm:gap-3">
           <!-- Language Switcher -->
           <LocaleSwitcher />
+          <HeaderLinks />
 
           <!-- Doc Link -->
           <a
@@ -498,6 +500,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore, useAppStore } from '@/stores'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
+import HeaderLinks from '@/components/common/HeaderLinks.vue'
 import Icon from '@/components/icons/Icon.vue'
 import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, isFeatureFlagEnabled } from '@/utils/featureFlags'

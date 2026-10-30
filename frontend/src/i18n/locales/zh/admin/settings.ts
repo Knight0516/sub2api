@@ -698,6 +698,13 @@ export default {
         integrationDoc: '支付集成文档',
         integrationDocHint: '包含接口说明、幂等语义及示例代码'
       },
+      headerLinks: {
+        title: '顶部跳转链接',
+        description: '最多配置两个链接，在网站首页和登录后的顶部导航显示。标题或网址为空时隐藏，网址须为完整的 HTTP(S) 地址。点击后在新标签页打开。',
+        item: '链接 {n}',
+        label: '标题',
+        url: '跳转网址',
+      },
       customMenu: {
         title: '自定义菜单页面',
         description: '添加自定义 iframe 页面到侧边栏导航。每个页面可以设置为普通用户或管理员可见。',
