@@ -74,7 +74,7 @@ docker-compose.override.yml
 .DS_Store
 Thumbs.db
 Desktop.ini
-
+release/*
 # ===================
 # 临时文件
 # ===================
@@ -162,3 +162,8 @@ issues/
 .vite/
 # 本地闭源插件开发目录及构建产物不进入 Sub2API 仓库
 /plugins/
+
+# Local packaged binaries
+/sub2api
+/sub2api-linux-*
+/sub2api.sha256
