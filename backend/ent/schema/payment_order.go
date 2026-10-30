@@ -189,6 +189,7 @@ func (PaymentOrder) Edges() []ent.Edge {
 
 func (PaymentOrder) Indexes() []ent.Index {
 	return []ent.Index{
+		index.Fields("user_id", "plan_id").StorageKey("payment_orders_user_plan_idx"),
 		index.Fields("out_trade_no").
 			Unique().
 			Annotations(entsql.IndexWhere("out_trade_no <> ''")),

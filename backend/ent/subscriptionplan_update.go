@@ -237,6 +237,27 @@ func (_u *SubscriptionPlanUpdate) AddSortOrder(v int) *SubscriptionPlanUpdate {
 	return _u
 }
 
+// SetPurchaseLimit sets the "purchase_limit" field.
+func (_u *SubscriptionPlanUpdate) SetPurchaseLimit(v int) *SubscriptionPlanUpdate {
+	_u.mutation.ResetPurchaseLimit()
+	_u.mutation.SetPurchaseLimit(v)
+	return _u
+}
+
+// SetNillablePurchaseLimit sets the "purchase_limit" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdate) SetNillablePurchaseLimit(v *int) *SubscriptionPlanUpdate {
+	if v != nil {
+		_u.SetPurchaseLimit(*v)
+	}
+	return _u
+}
+
+// AddPurchaseLimit adds value to the "purchase_limit" field.
+func (_u *SubscriptionPlanUpdate) AddPurchaseLimit(v int) *SubscriptionPlanUpdate {
+	_u.mutation.AddPurchaseLimit(v)
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *SubscriptionPlanUpdate) SetUpdatedAt(v time.Time) *SubscriptionPlanUpdate {
 	_u.mutation.SetUpdatedAt(v)
@@ -304,6 +325,11 @@ func (_u *SubscriptionPlanUpdate) check() error {
 	if v, ok := _u.mutation.ProductName(); ok {
 		if err := subscriptionplan.ProductNameValidator(v); err != nil {
 			return &ValidationError{Name: "product_name", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.product_name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.PurchaseLimit(); ok {
+		if err := subscriptionplan.PurchaseLimitValidator(v); err != nil {
+			return &ValidationError{Name: "purchase_limit", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.purchase_limit": %w`, err)}
 		}
 	}
 	return nil
@@ -374,6 +400,12 @@ func (_u *SubscriptionPlanUpdate) sqlSave(ctx context.Context) (_node int, err e
 	}
 	if value, ok := _u.mutation.AddedSortOrder(); ok {
 		_spec.AddField(subscriptionplan.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.PurchaseLimit(); ok {
+		_spec.SetField(subscriptionplan.FieldPurchaseLimit, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedPurchaseLimit(); ok {
+		_spec.AddField(subscriptionplan.FieldPurchaseLimit, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(subscriptionplan.FieldUpdatedAt, field.TypeTime, value)
@@ -607,6 +639,27 @@ func (_u *SubscriptionPlanUpdateOne) AddSortOrder(v int) *SubscriptionPlanUpdate
 	return _u
 }
 
+// SetPurchaseLimit sets the "purchase_limit" field.
+func (_u *SubscriptionPlanUpdateOne) SetPurchaseLimit(v int) *SubscriptionPlanUpdateOne {
+	_u.mutation.ResetPurchaseLimit()
+	_u.mutation.SetPurchaseLimit(v)
+	return _u
+}
+
+// SetNillablePurchaseLimit sets the "purchase_limit" field if the given value is not nil.
+func (_u *SubscriptionPlanUpdateOne) SetNillablePurchaseLimit(v *int) *SubscriptionPlanUpdateOne {
+	if v != nil {
+		_u.SetPurchaseLimit(*v)
+	}
+	return _u
+}
+
+// AddPurchaseLimit adds value to the "purchase_limit" field.
+func (_u *SubscriptionPlanUpdateOne) AddPurchaseLimit(v int) *SubscriptionPlanUpdateOne {
+	_u.mutation.AddPurchaseLimit(v)
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *SubscriptionPlanUpdateOne) SetUpdatedAt(v time.Time) *SubscriptionPlanUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
@@ -687,6 +740,11 @@ func (_u *SubscriptionPlanUpdateOne) check() error {
 	if v, ok := _u.mutation.ProductName(); ok {
 		if err := subscriptionplan.ProductNameValidator(v); err != nil {
 			return &ValidationError{Name: "product_name", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.product_name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.PurchaseLimit(); ok {
+		if err := subscriptionplan.PurchaseLimitValidator(v); err != nil {
+			return &ValidationError{Name: "purchase_limit", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.purchase_limit": %w`, err)}
 		}
 	}
 	return nil
@@ -774,6 +832,12 @@ func (_u *SubscriptionPlanUpdateOne) sqlSave(ctx context.Context) (_node *Subscr
 	}
 	if value, ok := _u.mutation.AddedSortOrder(); ok {
 		_spec.AddField(subscriptionplan.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.PurchaseLimit(); ok {
+		_spec.SetField(subscriptionplan.FieldPurchaseLimit, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedPurchaseLimit(); ok {
+		_spec.AddField(subscriptionplan.FieldPurchaseLimit, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(subscriptionplan.FieldUpdatedAt, field.TypeTime, value)

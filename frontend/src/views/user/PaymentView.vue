@@ -510,7 +510,18 @@ function onPaymentDone() {
   selectedPlan.value = null
   if (wasSubscription) {
     subscriptionStore.fetchActiveSubscriptions(true).catch(() => {})
+    refreshPlanAvailability()
   }
+}
+
+async function refreshPlanAvailability() {
+  try {
+    const res = await paymentAPI.getCheckoutInfo()
+    checkout.value.plans = res.data.plans
+    if (selectedPlan.value) {
+      selectedPlan.value = res.data.plans.find(plan => plan.id === selectedPlan.value?.id) ?? null
+    }
+  } catch { /* Order creation always rechecks availability on the server. */ }
 }
 
 async function onPaymentSuccess() {
@@ -806,11 +817,13 @@ function planPeakRateLabel(plan: SubscriptionPlan): string {
 }
 
 function selectPlan(plan: SubscriptionPlan) {
+  if (isPlanPurchaseLimitReached(plan)) return
   selectedPlan.value = plan
   errorMessage.value = ''
 }
 
 function selectPlanFromModal(plan: SubscriptionPlan) {
+  if (isPlanPurchaseLimitReached(plan)) return
   showRenewalModal.value = false
   renewGroupId.value = null
   selectedPlan.value = plan
@@ -829,7 +842,15 @@ async function handleSubmitRecharge() {
 
 async function confirmSubscribe() {
   if (!selectedPlan.value || submitting.value) return
+  if (isPlanPurchaseLimitReached(selectedPlan.value)) {
+    errorMessage.value = t('payment.errors.PLAN_PURCHASE_LIMIT_REACHED', { limit: selectedPlan.value.purchase_limit })
+    return
+  }
   await createOrder(selectedPlan.value.price, 'subscription', selectedPlan.value.id)
+}
+
+function isPlanPurchaseLimitReached(plan: SubscriptionPlan): boolean {
+  return (plan.purchase_limit ?? 0) > 0 && (plan.purchase_count ?? 0) >= plan.purchase_limit!
 }
 
 async function createOrder(orderAmount: number, orderType: OrderType, planId?: number, options: CreateOrderOptions = {}) {
@@ -983,7 +1004,11 @@ async function createOrder(orderAmount: number, orderType: OrderType, planId?: n
     }
   } catch (err: unknown) {
     const apiErr = err as Record<string, unknown>
-    if (apiErr.reason === 'TOO_MANY_PENDING') {
+    if (apiErr.reason === 'PLAN_PURCHASE_LIMIT_REACHED') {
+      errorMessage.value = extractI18nErrorMessage(err, t, 'payment.errors', t('payment.planCard.purchaseLimitReached'))
+      errorHintMessage.value = ''
+      refreshPlanAvailability()
+    } else if (apiErr.reason === 'TOO_MANY_PENDING') {
       const metadata = apiErr.metadata as Record<string, unknown> | undefined
       errorMessage.value = t('payment.errors.tooManyPending', { max: metadata?.max || '' })
       errorHintMessage.value = ''

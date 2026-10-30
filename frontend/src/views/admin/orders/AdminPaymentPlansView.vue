@@ -52,6 +52,9 @@
             ]" />
           </button>
         </template>
+        <template #cell-purchase_limit="{ value }">
+          <span class="text-sm">{{ value > 0 ? t('payment.planCard.purchaseLimit', { limit: value }) : t('payment.admin.unlimited') }}</span>
+        </template>
         <template #cell-actions="{ row }">
           <div class="flex items-center gap-2">
             <button @click="openPlanEdit(row)" class="flex flex-col items-center gap-0.5 rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400">
@@ -148,6 +151,7 @@ const planColumns = computed((): Column[] => [
   { key: 'group_id', label: t('payment.admin.group') },
   { key: 'price', label: t('payment.admin.price') },
   { key: 'validity_days', label: t('payment.admin.validity') },
+  { key: 'purchase_limit', label: t('payment.admin.purchaseLimit') },
   { key: 'for_sale', label: t('payment.admin.forSale') },
   { key: 'sort_order', label: t('payment.admin.sortOrder') },
   { key: 'actions', label: t('common.actions') },

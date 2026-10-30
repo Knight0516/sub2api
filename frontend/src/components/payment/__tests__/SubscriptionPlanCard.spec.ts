@@ -52,6 +52,24 @@ const mountPlanCard = (groupPlatform: string, overrides: Partial<SubscriptionPla
   });
 
 describe("SubscriptionPlanCard", () => {
+  it("blocks selection when paid and pending purchases reach the limit", async () => {
+    const wrapper = mountPlanCard("openai", { purchase_limit: 2, purchase_count: 2 });
+    expect(wrapper.get("button").attributes("disabled")).toBeDefined();
+    expect(wrapper.text()).toContain("payment.planCard.purchaseLimitReached");
+    await wrapper.get("button").trigger("click");
+    expect(wrapper.emitted("select")).toBeUndefined();
+  });
+
+  it.each([
+    { purchase_limit: 2, purchase_count: 1 },
+    { purchase_limit: 0, purchase_count: 9 },
+    {},
+  ])("allows purchases with available slots or no limit: %j", async (limits) => {
+    const wrapper = mountPlanCard("openai", limits);
+    expect(wrapper.get("button").attributes("disabled")).toBeUndefined();
+    await wrapper.get("button").trigger("click");
+    expect(wrapper.emitted("select")).toHaveLength(1);
+  });
   it("does not show Antigravity model scopes for OpenAI plans", () => {
     const text = mountPlanCard("openai").text();
 

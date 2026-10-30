@@ -123,6 +123,10 @@ export interface PaymentOrder {
 // ==================== Plans & Channels ====================
 
 export interface SubscriptionPlan {
+  /** Per-user lifetime limit; zero means unlimited. */
+  purchase_limit?: number
+  /** Paid purchases plus orders currently reserving a purchase slot. */
+  purchase_count?: number
   id: number
   group_id: number
   group_platform?: string

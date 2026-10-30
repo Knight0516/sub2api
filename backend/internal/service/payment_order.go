@@ -156,6 +156,10 @@ func (s *PaymentService) validateSubOrder(ctx context.Context, req CreateOrderRe
 	if !group.IsSubscriptionType() {
 		return nil, infraerrors.BadRequest("GROUP_TYPE_MISMATCH", "group is not a subscription type")
 	}
+	// Fail before provider/OAuth selection; reserve atomically in createOrderInTx.
+	if err := checkPlanPurchaseLimit(ctx, s.entClient, req.UserID, plan); err != nil {
+		return nil, err
+	}
 	return plan, nil
 }
 
@@ -165,6 +169,18 @@ func (s *PaymentService) createOrderInTx(ctx context.Context, req CreateOrderReq
 		return nil, fmt.Errorf("begin transaction: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	if plan != nil {
+		if err := lockPlanPurchaser(ctx, tx.Client(), req.UserID); err != nil {
+			return nil, fmt.Errorf("lock plan purchaser: %w", err)
+		}
+		currentPlan, err := tx.SubscriptionPlan.Get(ctx, plan.ID)
+		if err != nil || !currentPlan.ForSale {
+			return nil, infraerrors.NotFound("PLAN_NOT_AVAILABLE", "plan not found or not for sale")
+		}
+		if err := checkPlanPurchaseLimit(ctx, tx.Client(), req.UserID, currentPlan); err != nil {
+			return nil, err
+		}
+	}
 	if err := s.checkPendingLimit(ctx, tx, req.UserID, cfg.MaxPendingOrders); err != nil {
 		return nil, err
 	}

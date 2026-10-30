@@ -1180,6 +1180,11 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "payment_orders_user_plan_idx",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentOrdersColumns[40], PaymentOrdersColumns[16]},
+			},
+			{
 				Name:    "paymentorder_out_trade_no",
 				Unique:  true,
 				Columns: []*schema.Column{PaymentOrdersColumns[9]},
@@ -1553,6 +1558,7 @@ var (
 		{Name: "product_name", Type: field.TypeString, Size: 100, Default: ""},
 		{Name: "for_sale", Type: field.TypeBool, Default: true},
 		{Name: "sort_order", Type: field.TypeInt, Default: 0},
+		{Name: "purchase_limit", Type: field.TypeInt, Default: 0},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
 	}

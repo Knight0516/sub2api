@@ -60,6 +60,11 @@
         </div>
       </div>
       <div>
+        <label for="plan-purchase-limit" class="input-label">{{ t('payment.admin.purchaseLimit') }}</label>
+        <input id="plan-purchase-limit" v-model.number="planForm.purchase_limit" type="number" min="0" step="1" class="input" required />
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t('payment.admin.purchaseLimitHint') }}</p>
+      </div>
+      <div>
         <label class="input-label">{{ t('payment.admin.features') }}</label>
         <textarea v-model="planFeaturesText" rows="3" class="input" :placeholder="t('payment.admin.featuresPlaceholder')"></textarea>
         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ t('payment.admin.featuresHint') }}</p>
@@ -122,7 +127,7 @@ const { t } = useI18n()
 const appStore = useAppStore()
 
 const saving = ref(false)
-const planForm = reactive({ name: '', group_id: null as number | null, description: '', price: 0, original_price: 0, currency: '', validity_days: 30, validity_unit: 'days', sort_order: 0, for_sale: true })
+const planForm = reactive({ name: '', group_id: null as number | null, description: '', price: 0, original_price: 0, currency: '', validity_days: 30, validity_unit: 'days', sort_order: 0, for_sale: true, purchase_limit: 0 })
 const planFeaturesText = ref('')
 
 const validityUnitOptions = computed(() => [
@@ -175,9 +180,11 @@ const subscriptionCnyPreview = computed(() => {
 watch(() => props.show, (visible) => {
   if (!visible) return
   if (props.plan) {
+    planForm.purchase_limit = props.plan.purchase_limit ?? 0
     Object.assign(planForm, { name: props.plan.name, group_id: props.plan.group_id, description: props.plan.description, price: props.plan.price, original_price: props.plan.original_price || 0, currency: props.plan.currency || '', validity_days: props.plan.validity_days, validity_unit: props.plan.validity_unit || 'days', sort_order: props.plan.sort_order || 0, for_sale: props.plan.for_sale })
     planFeaturesText.value = (props.plan.features || []).join('\n')
   } else {
+    planForm.purchase_limit = 0
     Object.assign(planForm, { name: '', group_id: null, description: '', price: 0, original_price: 0, currency: '', validity_days: 30, validity_unit: 'days', sort_order: 0, for_sale: true })
     planFeaturesText.value = ''
   }
@@ -197,11 +204,16 @@ function buildPlanPayload() {
     validity_unit: planForm.validity_unit,
     sort_order: planForm.sort_order,
     for_sale: planForm.for_sale,
+    purchase_limit: planForm.purchase_limit,
     features,
   }
 }
 
 async function handleSavePlan() {
+  if (!Number.isInteger(planForm.purchase_limit) || planForm.purchase_limit < 0) {
+    appStore.showError(t('payment.admin.purchaseLimitInvalid'))
+    return
+  }
   if (!planForm.group_id) {
     appStore.showError(t('payment.admin.groupRequired'))
     return

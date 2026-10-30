@@ -53,20 +53,21 @@ func TestAdminSubscriptionPlansForResponseIncludesCompositeGroupInfo(t *testing.
 	now := time.Now()
 	plans := []*dbent.SubscriptionPlan{
 		{
-			ID:           11,
-			GroupID:      7,
-			Name:         "All models",
-			Description:  "Composite access",
-			Price:        19.99,
-			Currency:     "CNY",
-			ValidityDays: 30,
-			ValidityUnit: "days",
-			Features:     "OpenAI\nClaude\nGemini\nGrok",
-			ProductName:  "Sub2API",
-			ForSale:      true,
-			SortOrder:    1,
-			CreatedAt:    now,
-			UpdatedAt:    now,
+			ID:            11,
+			GroupID:       7,
+			Name:          "All models",
+			Description:   "Composite access",
+			Price:         19.99,
+			Currency:      "CNY",
+			PurchaseLimit: 2,
+			ValidityDays:  30,
+			ValidityUnit:  "days",
+			Features:      "OpenAI\nClaude\nGemini\nGrok",
+			ProductName:   "Sub2API",
+			ForSale:       true,
+			SortOrder:     1,
+			CreatedAt:     now,
+			UpdatedAt:     now,
 		},
 	}
 	groupInfo := map[int64]service.PlanGroupInfo{
@@ -100,6 +101,9 @@ func TestAdminSubscriptionPlansForResponseIncludesCompositeGroupInfo(t *testing.
 	// 静默清空套餐货币（PlanEditDialog 回传空串 → SetCurrency("")）。
 	if got[0].Currency != "CNY" {
 		t.Fatalf("expected currency to be preserved, got %q", got[0].Currency)
+	}
+	if got[0].PurchaseLimit != 2 {
+		t.Fatalf("expected purchase limit to be preserved, got %d", got[0].PurchaseLimit)
 	}
 	if !got[0].CreatedAt.Equal(now) || !got[0].UpdatedAt.Equal(now) {
 		t.Fatalf("expected created_at/updated_at to be preserved, got %v / %v", got[0].CreatedAt, got[0].UpdatedAt)

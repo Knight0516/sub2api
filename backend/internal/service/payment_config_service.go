@@ -173,6 +173,7 @@ type UpdateProviderInstanceRequest struct {
 	AllowUserRefund *bool             `json:"allow_user_refund"`
 }
 type CreatePlanRequest struct {
+	PurchaseLimit int      `json:"purchase_limit"`
 	GroupID       int64    `json:"group_id"`
 	Name          string   `json:"name"`
 	Description   string   `json:"description"`
@@ -188,6 +189,7 @@ type CreatePlanRequest struct {
 }
 
 type UpdatePlanRequest struct {
+	PurchaseLimit *int     `json:"purchase_limit"`
 	GroupID       *int64   `json:"group_id"`
 	Name          *string  `json:"name"`
 	Description   *string  `json:"description"`

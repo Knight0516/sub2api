@@ -590,6 +590,9 @@ func (s *PaymentService) ExecuteSubscriptionFulfillment(ctx context.Context, oid
 		return nil
 	}
 	if err := s.doSub(ctx, o, lease); err != nil {
+		if infraerrors.Reason(err) == "PLAN_PURCHASE_LIMIT_REACHED" {
+			return s.requestPurchaseLimitRefund(ctx, oid, lease)
+		}
 		s.markFailed(ctx, oid, lease, err)
 		return err
 	}
@@ -625,6 +628,16 @@ func (s *PaymentService) ensurePaymentSubscriptionAssigned(ctx context.Context, 
 
 	txCtx := dbent.NewTxContext(ctx, tx)
 	txClient := tx.Client()
+	var plan *dbent.SubscriptionPlan
+	if o.PlanID != nil {
+		if err := lockPlanPurchaser(txCtx, txClient, o.UserID); err != nil {
+			return fmt.Errorf("lock subscription purchaser: %w", err)
+		}
+		plan, err = txClient.SubscriptionPlan.Get(txCtx, *o.PlanID)
+		if err != nil && !dbent.IsNotFound(err) {
+			return fmt.Errorf("get subscription purchase limit: %w", err)
+		}
+	}
 	alreadyAssigned, err := hasPaymentSubscriptionAssignmentAudit(txCtx, txClient, o.ID)
 	if err != nil {
 		return fmt.Errorf("check subscription assignment audit: %w", err)
@@ -640,6 +653,9 @@ func (s *PaymentService) ensurePaymentSubscriptionAssigned(ctx context.Context, 
 		case lookupErr != nil && !errors.Is(lookupErr, ErrSubscriptionNotFound):
 			return fmt.Errorf("check existing subscription assignment: %w", lookupErr)
 		default:
+			if err := checkPlanAssignmentLimit(txCtx, txClient, o, plan); err != nil {
+				return err
+			}
 			if _, _, err := s.subscriptionSvc.assignOrExtendSubscription(txCtx, &AssignSubscriptionInput{
 				UserID:       o.UserID,
 				GroupID:      groupID,

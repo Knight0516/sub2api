@@ -114,6 +114,11 @@ func SortOrder(v int) predicate.SubscriptionPlan {
 	return predicate.SubscriptionPlan(sql.FieldEQ(FieldSortOrder, v))
 }
 
+// PurchaseLimit applies equality check predicate on the "purchase_limit" field. It's identical to PurchaseLimitEQ.
+func PurchaseLimit(v int) predicate.SubscriptionPlan {
+	return predicate.SubscriptionPlan(sql.FieldEQ(FieldPurchaseLimit, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.SubscriptionPlan {
 	return predicate.SubscriptionPlan(sql.FieldEQ(FieldCreatedAt, v))
@@ -732,6 +737,46 @@ func SortOrderLT(v int) predicate.SubscriptionPlan {
 // SortOrderLTE applies the LTE predicate on the "sort_order" field.
 func SortOrderLTE(v int) predicate.SubscriptionPlan {
 	return predicate.SubscriptionPlan(sql.FieldLTE(FieldSortOrder, v))
+}
+
+// PurchaseLimitEQ applies the EQ predicate on the "purchase_limit" field.
+func PurchaseLimitEQ(v int) predicate.SubscriptionPlan {
+	return predicate.SubscriptionPlan(sql.FieldEQ(FieldPurchaseLimit, v))
+}
+
+// PurchaseLimitNEQ applies the NEQ predicate on the "purchase_limit" field.
+func PurchaseLimitNEQ(v int) predicate.SubscriptionPlan {
+	return predicate.SubscriptionPlan(sql.FieldNEQ(FieldPurchaseLimit, v))
+}
+
+// PurchaseLimitIn applies the In predicate on the "purchase_limit" field.
+func PurchaseLimitIn(vs ...int) predicate.SubscriptionPlan {
+	return predicate.SubscriptionPlan(sql.FieldIn(FieldPurchaseLimit, vs...))
+}
+
+// PurchaseLimitNotIn applies the NotIn predicate on the "purchase_limit" field.
+func PurchaseLimitNotIn(vs ...int) predicate.SubscriptionPlan {
+	return predicate.SubscriptionPlan(sql.FieldNotIn(FieldPurchaseLimit, vs...))
+}
+
+// PurchaseLimitGT applies the GT predicate on the "purchase_limit" field.
+func PurchaseLimitGT(v int) predicate.SubscriptionPlan {
+	return predicate.SubscriptionPlan(sql.FieldGT(FieldPurchaseLimit, v))
+}
+
+// PurchaseLimitGTE applies the GTE predicate on the "purchase_limit" field.
+func PurchaseLimitGTE(v int) predicate.SubscriptionPlan {
+	return predicate.SubscriptionPlan(sql.FieldGTE(FieldPurchaseLimit, v))
+}
+
+// PurchaseLimitLT applies the LT predicate on the "purchase_limit" field.
+func PurchaseLimitLT(v int) predicate.SubscriptionPlan {
+	return predicate.SubscriptionPlan(sql.FieldLT(FieldPurchaseLimit, v))
+}
+
+// PurchaseLimitLTE applies the LTE predicate on the "purchase_limit" field.
+func PurchaseLimitLTE(v int) predicate.SubscriptionPlan {
+	return predicate.SubscriptionPlan(sql.FieldLTE(FieldPurchaseLimit, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

@@ -166,6 +166,20 @@ func (_c *SubscriptionPlanCreate) SetNillableSortOrder(v *int) *SubscriptionPlan
 	return _c
 }
 
+// SetPurchaseLimit sets the "purchase_limit" field.
+func (_c *SubscriptionPlanCreate) SetPurchaseLimit(v int) *SubscriptionPlanCreate {
+	_c.mutation.SetPurchaseLimit(v)
+	return _c
+}
+
+// SetNillablePurchaseLimit sets the "purchase_limit" field if the given value is not nil.
+func (_c *SubscriptionPlanCreate) SetNillablePurchaseLimit(v *int) *SubscriptionPlanCreate {
+	if v != nil {
+		_c.SetPurchaseLimit(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *SubscriptionPlanCreate) SetCreatedAt(v time.Time) *SubscriptionPlanCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -261,6 +275,10 @@ func (_c *SubscriptionPlanCreate) defaults() {
 		v := subscriptionplan.DefaultSortOrder
 		_c.mutation.SetSortOrder(v)
 	}
+	if _, ok := _c.mutation.PurchaseLimit(); !ok {
+		v := subscriptionplan.DefaultPurchaseLimit
+		_c.mutation.SetPurchaseLimit(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := subscriptionplan.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -325,6 +343,14 @@ func (_c *SubscriptionPlanCreate) check() error {
 	}
 	if _, ok := _c.mutation.SortOrder(); !ok {
 		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "SubscriptionPlan.sort_order"`)}
+	}
+	if _, ok := _c.mutation.PurchaseLimit(); !ok {
+		return &ValidationError{Name: "purchase_limit", err: errors.New(`ent: missing required field "SubscriptionPlan.purchase_limit"`)}
+	}
+	if v, ok := _c.mutation.PurchaseLimit(); ok {
+		if err := subscriptionplan.PurchaseLimitValidator(v); err != nil {
+			return &ValidationError{Name: "purchase_limit", err: fmt.Errorf(`ent: validator failed for field "SubscriptionPlan.purchase_limit": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "SubscriptionPlan.created_at"`)}
@@ -406,6 +432,10 @@ func (_c *SubscriptionPlanCreate) createSpec() (*SubscriptionPlan, *sqlgraph.Cre
 	if value, ok := _c.mutation.SortOrder(); ok {
 		_spec.SetField(subscriptionplan.FieldSortOrder, field.TypeInt, value)
 		_node.SortOrder = value
+	}
+	if value, ok := _c.mutation.PurchaseLimit(); ok {
+		_spec.SetField(subscriptionplan.FieldPurchaseLimit, field.TypeInt, value)
+		_node.PurchaseLimit = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(subscriptionplan.FieldCreatedAt, field.TypeTime, value)
@@ -644,6 +674,24 @@ func (u *SubscriptionPlanUpsert) UpdateSortOrder() *SubscriptionPlanUpsert {
 // AddSortOrder adds v to the "sort_order" field.
 func (u *SubscriptionPlanUpsert) AddSortOrder(v int) *SubscriptionPlanUpsert {
 	u.Add(subscriptionplan.FieldSortOrder, v)
+	return u
+}
+
+// SetPurchaseLimit sets the "purchase_limit" field.
+func (u *SubscriptionPlanUpsert) SetPurchaseLimit(v int) *SubscriptionPlanUpsert {
+	u.Set(subscriptionplan.FieldPurchaseLimit, v)
+	return u
+}
+
+// UpdatePurchaseLimit sets the "purchase_limit" field to the value that was provided on create.
+func (u *SubscriptionPlanUpsert) UpdatePurchaseLimit() *SubscriptionPlanUpsert {
+	u.SetExcluded(subscriptionplan.FieldPurchaseLimit)
+	return u
+}
+
+// AddPurchaseLimit adds v to the "purchase_limit" field.
+func (u *SubscriptionPlanUpsert) AddPurchaseLimit(v int) *SubscriptionPlanUpsert {
+	u.Add(subscriptionplan.FieldPurchaseLimit, v)
 	return u
 }
 
@@ -911,6 +959,27 @@ func (u *SubscriptionPlanUpsertOne) AddSortOrder(v int) *SubscriptionPlanUpsertO
 func (u *SubscriptionPlanUpsertOne) UpdateSortOrder() *SubscriptionPlanUpsertOne {
 	return u.Update(func(s *SubscriptionPlanUpsert) {
 		s.UpdateSortOrder()
+	})
+}
+
+// SetPurchaseLimit sets the "purchase_limit" field.
+func (u *SubscriptionPlanUpsertOne) SetPurchaseLimit(v int) *SubscriptionPlanUpsertOne {
+	return u.Update(func(s *SubscriptionPlanUpsert) {
+		s.SetPurchaseLimit(v)
+	})
+}
+
+// AddPurchaseLimit adds v to the "purchase_limit" field.
+func (u *SubscriptionPlanUpsertOne) AddPurchaseLimit(v int) *SubscriptionPlanUpsertOne {
+	return u.Update(func(s *SubscriptionPlanUpsert) {
+		s.AddPurchaseLimit(v)
+	})
+}
+
+// UpdatePurchaseLimit sets the "purchase_limit" field to the value that was provided on create.
+func (u *SubscriptionPlanUpsertOne) UpdatePurchaseLimit() *SubscriptionPlanUpsertOne {
+	return u.Update(func(s *SubscriptionPlanUpsert) {
+		s.UpdatePurchaseLimit()
 	})
 }
 
@@ -1346,6 +1415,27 @@ func (u *SubscriptionPlanUpsertBulk) AddSortOrder(v int) *SubscriptionPlanUpsert
 func (u *SubscriptionPlanUpsertBulk) UpdateSortOrder() *SubscriptionPlanUpsertBulk {
 	return u.Update(func(s *SubscriptionPlanUpsert) {
 		s.UpdateSortOrder()
+	})
+}
+
+// SetPurchaseLimit sets the "purchase_limit" field.
+func (u *SubscriptionPlanUpsertBulk) SetPurchaseLimit(v int) *SubscriptionPlanUpsertBulk {
+	return u.Update(func(s *SubscriptionPlanUpsert) {
+		s.SetPurchaseLimit(v)
+	})
+}
+
+// AddPurchaseLimit adds v to the "purchase_limit" field.
+func (u *SubscriptionPlanUpsertBulk) AddPurchaseLimit(v int) *SubscriptionPlanUpsertBulk {
+	return u.Update(func(s *SubscriptionPlanUpsert) {
+		s.AddPurchaseLimit(v)
+	})
+}
+
+// UpdatePurchaseLimit sets the "purchase_limit" field to the value that was provided on create.
+func (u *SubscriptionPlanUpsertBulk) UpdatePurchaseLimit() *SubscriptionPlanUpsertBulk {
+	return u.Update(func(s *SubscriptionPlanUpsert) {
+		s.UpdatePurchaseLimit()
 	})
 }
 

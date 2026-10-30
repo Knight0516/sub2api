@@ -50,6 +50,9 @@ func validatePlanRequired(name string, groupID int64, price float64, validityDay
 
 // validatePlanPatch validates only the non-nil fields in a patch update.
 func validatePlanPatch(req UpdatePlanRequest) error {
+	if req.PurchaseLimit != nil && *req.PurchaseLimit < 0 {
+		return infraerrors.BadRequest("PLAN_PURCHASE_LIMIT_INVALID", "purchase limit must be >= 0")
+	}
 	if req.Name != nil && strings.TrimSpace(*req.Name) == "" {
 		return infraerrors.BadRequest("PLAN_NAME_REQUIRED", "plan name is required")
 	}
@@ -137,6 +140,9 @@ func (s *PaymentConfigService) ListPlansForSale(ctx context.Context) ([]*dbent.S
 }
 
 func (s *PaymentConfigService) CreatePlan(ctx context.Context, req CreatePlanRequest) (*dbent.SubscriptionPlan, error) {
+	if req.PurchaseLimit < 0 {
+		return nil, infraerrors.BadRequest("PLAN_PURCHASE_LIMIT_INVALID", "purchase limit must be >= 0")
+	}
 	if err := validatePlanRequired(req.Name, req.GroupID, req.Price, req.ValidityDays, req.ValidityUnit, req.OriginalPrice); err != nil {
 		return nil, err
 	}
@@ -148,7 +154,7 @@ func (s *PaymentConfigService) CreatePlan(ctx context.Context, req CreatePlanReq
 		SetGroupID(req.GroupID).SetName(req.Name).SetDescription(req.Description).
 		SetPrice(req.Price).SetCurrency(currency).SetValidityDays(req.ValidityDays).SetValidityUnit(req.ValidityUnit).
 		SetFeatures(req.Features).SetProductName(req.ProductName).
-		SetForSale(req.ForSale).SetSortOrder(req.SortOrder)
+		SetForSale(req.ForSale).SetSortOrder(req.SortOrder).SetPurchaseLimit(req.PurchaseLimit)
 	if req.OriginalPrice != nil {
 		b.SetOriginalPrice(*req.OriginalPrice)
 	}
@@ -163,6 +169,9 @@ func (s *PaymentConfigService) UpdatePlan(ctx context.Context, id int64, req Upd
 		return nil, err
 	}
 	u := s.entClient.SubscriptionPlan.UpdateOneID(id)
+	if req.PurchaseLimit != nil {
+		u.SetPurchaseLimit(*req.PurchaseLimit)
+	}
 	if req.GroupID != nil {
 		u.SetGroupID(*req.GroupID)
 	}

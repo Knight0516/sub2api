@@ -246,6 +246,13 @@ func (s *PaymentService) PrepareRefund(ctx context.Context, oid int64, amt float
 	if rr == "" {
 		rr = fmt.Sprintf("refund order:%d", o.ID)
 	}
+	// A rejected late subscription payment never granted days. Refunding it must
+	// not shorten the user's subscription from their earlier valid purchases.
+	if o.OrderType == payment.OrderTypeSubscription &&
+		o.RefundRequestedBy != nil && *o.RefundRequestedBy == "system" &&
+		o.RefundRequestReason != nil && *o.RefundRequestReason == subscriptionPurchaseLimitRefundReason {
+		deduct = false
+	}
 	p := &RefundPlan{OrderID: oid, Order: o, RefundAmount: amt, GatewayAmount: ga, Reason: rr, Force: force, DeductBalance: deduct, DeductionType: payment.DeductionTypeNone}
 	if deduct {
 		if er := s.prepDeduct(ctx, o, p, force); er != nil {

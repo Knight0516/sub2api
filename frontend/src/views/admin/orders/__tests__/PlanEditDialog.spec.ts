@@ -1,9 +1,11 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 
 import PlanEditDialog from '../PlanEditDialog.vue'
 import type { AdminGroup } from '@/types'
+import { adminPaymentAPI } from '@/api/admin/payment'
+import type { SubscriptionPlan } from '@/types/payment'
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
@@ -139,6 +141,49 @@ function mountDialog({
 }
 
 describe('PlanEditDialog', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  async function fillRequiredPlan(wrapper: ReturnType<typeof mountDialog>) {
+    await wrapper.find('input[type="text"]').setValue('Limited plan')
+    await wrapper.find('select').setValue('1')
+    await wrapper.find('textarea').setValue('Description')
+    await wrapper.find('input[type="number"]').setValue('10')
+  }
+
+  it('saves a per-user limit of two', async () => {
+    const wrapper = mountDialog({ groups: [groupFixture({})] })
+    await fillRequiredPlan(wrapper)
+    await wrapper.get('#plan-purchase-limit').setValue('2')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(adminPaymentAPI.createPlan).toHaveBeenCalledWith(expect.objectContaining({ purchase_limit: 2 }))
+  })
+
+  it.each(['-1', '1.5', ''])('rejects invalid limit %s', async value => {
+    const wrapper = mountDialog({ groups: [groupFixture({})] })
+    await fillRequiredPlan(wrapper)
+    await wrapper.get('#plan-purchase-limit').setValue(value)
+    await wrapper.get('form').trigger('submit')
+    expect(adminPaymentAPI.createPlan).not.toHaveBeenCalled()
+  })
+
+  it('loads an existing limit and can reset it to unlimited', async () => {
+    const wrapper = mountDialog({ groups: [groupFixture({})] })
+    const plan: SubscriptionPlan = {
+      id: 11, name: 'Limited', group_id: 1, description: 'Description', price: 10,
+      validity_days: 30, validity_unit: 'days', features: [], for_sale: true, sort_order: 0, purchase_limit: 2,
+    }
+    await wrapper.setProps({ show: false, plan })
+    await wrapper.setProps({ show: true })
+    expect((wrapper.get('#plan-purchase-limit').element as HTMLInputElement).value).toBe('2')
+    await wrapper.get('#plan-purchase-limit').setValue('0')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(adminPaymentAPI.updatePlan).toHaveBeenCalledWith(11, expect.objectContaining({ purchase_limit: 0 }))
+    await wrapper.setProps({ show: false, plan: null })
+    await wrapper.setProps({ show: true })
+    expect((wrapper.get('#plan-purchase-limit').element as HTMLInputElement).value).toBe('0')
+  })
   it('shows CNY channel charge using the configured subscription rate and fee', async () => {
     const wrapper = mountDialog({
       paymentConfig: {

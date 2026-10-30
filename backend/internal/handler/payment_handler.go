@@ -44,13 +44,24 @@ func (h *PaymentHandler) GetPaymentConfig(c *gin.Context) {
 // GetPlans returns subscription plans available for sale.
 // GET /api/v1/payment/plans
 func (h *PaymentHandler) GetPlans(c *gin.Context) {
+	subject, ok := requireAuth(c)
+	if !ok {
+		return
+	}
 	plans, err := h.configService.ListPlansForSale(c.Request.Context())
 	if err != nil {
 		response.ErrorFrom(c, err)
 		return
 	}
 	// Enrich plans with group platform for frontend color coding
+	counts, err := h.paymentService.GetPlanPurchaseCounts(c.Request.Context(), subject.UserID, plans)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
 	type planWithPlatform struct {
+		PurchaseLimit      int      `json:"purchase_limit"`
+		PurchaseCount      int      `json:"purchase_count"`
 		ID                 int64    `json:"id"`
 		GroupID            int64    `json:"group_id"`
 		GroupPlatform      string   `json:"group_platform"`
@@ -77,6 +88,7 @@ func (h *PaymentHandler) GetPlans(c *gin.Context) {
 	for _, p := range plans {
 		gi := groupInfo[p.GroupID]
 		result = append(result, planWithPlatform{
+			PurchaseLimit: p.PurchaseLimit, PurchaseCount: counts[p.ID],
 			ID: int64(p.ID), GroupID: p.GroupID,
 			GroupPlatform: gi.Platform, GroupName: gi.I18n.LocalizeName(c.GetHeader("Accept-Language"), gi.Name),
 			RateMultiplier: gi.RateMultiplier, PeakRateEnabled: gi.PeakRateEnabled,
@@ -94,6 +106,10 @@ func (h *PaymentHandler) GetPlans(c *gin.Context) {
 // payment methods with limits, subscription plans, and configuration.
 // GET /api/v1/payment/checkout-info
 func (h *PaymentHandler) GetCheckoutInfo(c *gin.Context) {
+	subject, ok := requireAuth(c)
+	if !ok {
+		return
+	}
 	ctx := c.Request.Context()
 
 	// Fetch limits (methods + global range)
@@ -119,12 +135,22 @@ func (h *PaymentHandler) GetCheckoutInfo(c *gin.Context) {
 	}
 
 	// Fetch plans with group info
-	plans, _ := h.configService.ListPlansForSale(ctx)
+	plans, err := h.configService.ListPlansForSale(ctx)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	counts, err := h.paymentService.GetPlanPurchaseCounts(ctx, subject.UserID, plans)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
 	groupInfo := h.configService.GetGroupInfoMap(ctx, plans)
 	planList := make([]checkoutPlan, 0, len(plans))
 	for _, p := range plans {
 		gi := groupInfo[p.GroupID]
 		planList = append(planList, checkoutPlan{
+			PurchaseLimit: p.PurchaseLimit, PurchaseCount: counts[p.ID],
 			ID: int64(p.ID), GroupID: p.GroupID,
 			GroupPlatform: gi.Platform, GroupName: gi.I18n.LocalizeName(c.GetHeader("Accept-Language"), gi.Name),
 			RateMultiplier:  gi.RateMultiplier,
@@ -180,6 +206,8 @@ type checkoutInfoResponse struct {
 }
 
 type checkoutPlan struct {
+	PurchaseLimit      int      `json:"purchase_limit"`
+	PurchaseCount      int      `json:"purchase_count"`
 	ID                 int64    `json:"id"`
 	GroupID            int64    `json:"group_id"`
 	GroupPlatform      string   `json:"group_platform"`

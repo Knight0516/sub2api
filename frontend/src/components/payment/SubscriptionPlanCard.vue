@@ -93,12 +93,17 @@
       <div class="flex-1" />
 
       <!-- Subscribe Button -->
+      <p v-if="(plan.purchase_limit ?? 0) > 0" class="mb-2 text-center text-xs text-gray-500 dark:text-gray-400">
+        {{ t('payment.planCard.purchaseLimit', { limit: plan.purchase_limit }) }}
+        {{ t('payment.planCard.purchaseRemaining', { remaining: purchaseRemaining }) }}
+      </p>
       <button
         type="button"
-        :class="['w-full rounded-xl py-2.5 text-sm font-semibold transition-all active:scale-[0.98]', btnClass]"
+        :disabled="purchaseLimitReached"
+        :class="['w-full rounded-xl py-2.5 text-sm font-semibold transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50', btnClass]"
         @click="emit('select', plan)"
       >
-        {{ isRenewal ? t('payment.renewNow') : t('payment.subscribeNow') }}
+        {{ purchaseLimitReached ? t('payment.planCard.purchaseLimitReached') : isRenewal ? t('payment.renewNow') : t('payment.subscribeNow') }}
       </button>
     </div>
   </div>
@@ -127,6 +132,8 @@ import {
 const props = defineProps<{ plan: SubscriptionPlan; activeSubscriptions?: UserSubscription[] }>()
 const emit = defineEmits<{ select: [plan: SubscriptionPlan] }>()
 const { t } = useI18n()
+const purchaseRemaining = computed(() => Math.max(0, (props.plan.purchase_limit ?? 0) - (props.plan.purchase_count ?? 0)))
+const purchaseLimitReached = computed(() => (props.plan.purchase_limit ?? 0) > 0 && purchaseRemaining.value === 0)
 
 const platform = computed(() => props.plan.group_platform || '')
 const isRenewal = computed(() =>
